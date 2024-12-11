@@ -1,89 +1,5 @@
-import json
 from tkinter import *
-import random
-import string
-import pyperclip
-
-
-# ---------------------------- PASSWORD GENERATOR ------------------------------- #
-
-def generate_password():
-    letters = string.ascii_letters
-    numbers = string.digits
-    symbols = string.punctuation
-
-    password_letters = [random.choice(letters) for _ in range(random.randint(8, 10))]
-    password_symbols = [random.choice(symbols) for _ in range(random.randint(2, 4))]
-    password_numbers = [random.choice(numbers) for _ in range(random.randint(2, 4))]
-
-    password_list = password_letters + password_symbols + password_numbers
-    random.shuffle(password_list)
-
-    password = "".join(password_list)
-    password_entry.delete(0, "end")
-    password_entry.insert(0, password)
-    pyperclip.copy(password)
-
-
-# ---------------------------- SAVE PASSWORD ------------------------------- #
-
-
-def save():
-    website = website_entry.get()
-    email = email_entry.get()
-    password = password_entry.get()
-
-    if len(website) == 0 or len(email) == 0 or len(password) == 0:
-        messagebox.showerror(title="Unacceptable Details", message="Please don't leave any fields empty!")
-    else:
-        try:
-            with open("data.json", "r") as data_file:
-                # Reading old data
-                data = json.load(data_file)
-        except FileNotFoundError:
-            data = {}
-        except json.decoder.JSONDecodeError:
-            data = {}
-
-        # dictionary to store emails and passwords in json format
-        data.update({
-            website: {
-                "email": email,
-                "password": password,
-            }
-        })
-        with open("data.json", "w") as data_file:
-            # Saving/Writing the data
-            json.dump(data, data_file, indent=4)
-
-            website_entry.delete(0, END)
-            password_entry.delete(0, END)
-
-
-def find_password():
-    is_found = 0
-    try:
-        with open("data.json") as data_file:
-            data = json.load(data_file)
-    except FileNotFoundError:
-        messagebox.showinfo(title="No File Found", message="No Data File Found")
-        data = {}
-    except json.JSONDecodeError:
-        messagebox.showinfo(title="No Data Found", message="data.json does not contain data")
-        data = {}
-    else:
-        for key, value in data.items():
-            if key == website_entry.get():
-                messagebox.showinfo(title=website_entry.get(),
-                                    message=f"Username: {key}\nPassword: {value['password']}")
-                is_found = 1
-                website_entry.delete(0, END)
-                password_entry.delete(0, END)
-        if is_found == 0:
-            messagebox.showinfo(title="Error", message=f"No Details For {website_entry.get()} Found")
-            website_entry.delete(0, END)
-            password_entry.delete(0, END)
-
+from functions import generate_password, save, find_password
 
 # ---------------------------- UI SETUP ------------------------------- #
 
@@ -104,7 +20,7 @@ website_entry = Entry(width=35)
 website_entry.grid(column=1, row=1)
 website_entry.focus()
 
-website_search_btn = Button(text="Search", command=find_password)
+website_search_btn = Button(text="Search", command=lambda: find_password(website_entry=website_entry, password_entry=password_entry))
 website_search_btn.grid(column=2, row=1, sticky="EW")
 
 email_label = Label(text="Email/Username: ")
@@ -121,10 +37,10 @@ password_label.grid(column=0, row=3)
 password_entry = Entry(width=21, show="*")
 password_entry.grid(column=1, row=3, sticky="EW")
 
-generate_password_btn = Button(text="Generate Password", command=generate_password)
+generate_password_btn = Button(text="Generate Password", command=lambda: generate_password(password_entry=password_entry))
 generate_password_btn.grid(column=2, row=3, sticky="EW")
 
-add_btn = Button(text="Add", width=36, command=save)
+add_btn = Button(text="Add", width=36, command=lambda: save(website_entry=website_entry, email_entry=email_entry, password_entry=password_entry))
 add_btn.grid(column=1, row=4, columnspan=2, sticky="EW")
 
 window.mainloop()
