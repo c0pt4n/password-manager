@@ -28,7 +28,7 @@ email_label.grid(column=0, row=2)
 
 email_entry = Entry(width=35)
 email_entry.grid(column=1, row=2, columnspan=2, sticky="EW")
-email_entry.insert(0, "yourmail@gmail.com")  # END represents the last character of the entry ie.., the cursor will
+email_entry.insert(0, "Enter your mail")  # END represents the last character of the entry ie.., the cursor will
 # be at the end of the entry for you to edit. Or you can use 0 which represents the beginning of the entry
 
 password_label = Label(text="Password: ")
